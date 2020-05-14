@@ -43,8 +43,8 @@ Here we explain some relevant parameter, for more details on parameters please r
 Setting "nuclearImproper"="softImproper" will disable the domain walls in the simulations, since the lamin walls are no longer distinguishable from the rest of the membrane.
 Tethers values are defined both in the initial configuration files or in the Lammps script. 
 
-The initial configurations consist in 2 files, input_\*.lmp containing the coordinates of the configuration with bonds, angles and impropers
-and  the other one 'input_\*_bondcoeff.lmp` containing the specification of bond coefficients between the nodes.
+The initial configurations consist in 2 files, 'input_\*.lmp' containing the coordinates of the configuration with bonds, angles and impropers
+and  the other one 'input_\*_bondcoeff.lmp' containing the specification of bond coefficients between the nodes.
 Both files are loaded at the beginning of the Lammps script.
 
 ### Run Simulations
