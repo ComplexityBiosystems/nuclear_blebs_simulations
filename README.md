@@ -4,6 +4,7 @@ This repository includes the necessary scripts and LAMMPS input files to reprodu
 MC Lionetti, S Bonfanti, MR Fumagalli, Z Budrikis, F Font-Clos, G Costantini, O Chepizhko, S Zapperi, CAM La Porta.
 "Chromatin and Cytoskeletal Tethering Determine Nuclear Morphology in Progerin-Expressing Cells".
 Biophysical Journal, Volume 118, Issue 9, 5 May 2020, Pages 2319-2332.
+
 https://doi.org/10.1016/j.bpj.2020.04.001
 [link to publication](https://www.sciencedirect.com/science/article/abs/pii/S0006349520303015)
 
