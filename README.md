@@ -44,7 +44,7 @@ Setting "nuclearImproper"="softImproper" will disable the domain walls in the si
 Tethers values are defined both in the initial configuration files or in the Lammps script. 
 
 The initial configurations consist in 2 files, 'input_*.lmp` containing the coordinates of the configuration with bonds, angles and impropers 
-=======
+
 The initial configurations consist in 2 files, input_*.lmp containing the coordinates of the configuration with bonds, angles and impropers
 and  the other one 'input_*_bondcoeff.lmp` containing the specification of bond coefficients between the nodes.
 Both files are loaded at the beginning of the Lammps script.
