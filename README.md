@@ -6,6 +6,7 @@ MC Lionetti, S Bonfanti, MR Fumagalli, Z Budrikis, F Font-Clos, G Costantini, O 
 Biophysical Journal, Volume 118, Issue 9, 5 May 2020, Pages 2319-2332.
 
 https://doi.org/10.1016/j.bpj.2020.04.001
+
 [link to publication](https://www.sciencedirect.com/science/article/abs/pii/S0006349520303015)
 
 ## Simulating nuclear blebs
@@ -31,7 +32,6 @@ Here we explain some relevant parameter, for more details on parameters please r
 Setting "nuclearImproper"="softImproper" will disable the domain walls in the simulations, since the lamin walls are no longer distinguishable from the rest of the membrane.
 Tethers values are defined both in the initial configuration files or in the Lammps script. 
 
-<<<<<<< HEAD
 The initial configurations consist in 2 files, 'input_*.lmp` containing the coordinates of the configuration with bonds, angles and impropers 
 =======
 The initial configurations consist in 2 files, input_*.lmp containing the coordinates of the configuration with bonds, angles and impropers
