@@ -1,0 +1,178 @@
+
+
+# ------------------- SIM INITIALIZATION --------------------------------------
+clear
+
+units 		micro		# lengths in microns, times in microseconds, masses in picograms
+dimension	3
+newton		on		# (required by lcbop)
+processors	2 2 2		# to arrange the processors in spatial grid x*y*z
+boundary 	s s m 		# 
+atom_style      hybrid molecular sphere
+atom_modify	sort 100000 2   # (required to use pair_style none)
+## http://lammps.sandia.gov/doc/atom_style.html
+
+#neigh_modify exclude type 1 2 exclude type 1 3 exclude type 1 1 binsize 0.1
+comm_modify cutoff 4.0 vel yes 
+
+read_data	${inputFile}
+
+print "read input"
+
+# ------------------- SIM INITIALIZATION END ----------------------------------
+
+# ----------------------- C ATOM DEFINITION ----------------------------------
+
+bond_style	harmonic
+include	${bondsFile}
+# bond lengths for all bond types
+
+bond_coeff 30722 ${chromatinShellBondCoeff} 0.1
+bond_coeff 30723 ${innerOuterBondCoeff} 2.258892
+
+print "bonds loaded"
+
+improper_style	harmonic
+improper_coeff	1 ${nuclearImproper} 180.0 #1.75e-6 180.0
+improper_coeff	2 ${softImproper} 180.0 #1.75e-6 180.0
+improper_coeff	3 ${outerImproper} 180.0 #1.75e-6 180.0
+# improper type; elastic constant (E/rad^2); equilibrium angle (deg)
+
+angle_style	harmonic
+angle_coeff 1 2e-1 130.0
+
+pair_style hybrid lj/cut 0.6 ## yukawa/colloid 10.0 0.3
+pair_coeff 2 2 lj/cut ${chrLJ} 0.12 0.2 #0.02 0.1  
+pair_coeff 2 3 lj/cut ${chrLJ} 0.12 0.2 #0.02 0.1 
+pair_coeff 3 3 lj/cut ${chrLJ} 0.12 0.2 #0.02 0.1
+pair_coeff 1 2 lj/cut ${slinkYukawaA} 0.6 0.6
+pair_coeff 1 3 lj/cut ${slinkYukawaA} 0.6 0.6
+
+
+#pair_coeff 1 2 yukawa/colloid ${slinkYukawaA} 0.15
+#pair_coeff 1 3 yukawa/colloid ${slinkYukawaA} 0.15
+#pair_coeff 2 2 yukawa/colloid ${yukawaA} 0.1 
+pair_coeff 5 5 lj/cut 0.0 0.0 0.0 #yukawa/colloid 0.0 0.0
+pair_coeff 1 4 lj/cut 0.0 0.0 0.0 
+pair_coeff 2 4 lj/cut 0.0 0.0 0.0
+pair_coeff 3 4 lj/cut 0.0 0.0 0.0
+pair_coeff 4 4 lj/cut 0.0 0.0 0.0
+pair_coeff 4 5 lj/cut 0.0 0.0 0.0
+pair_coeff 1 5 lj/cut 0.0 0.0 0.0 
+pair_coeff 2 5 lj/cut 0.0 0.0 0.0
+pair_coeff 3 5 lj/cut 0.0 0.0 0.0
+pair_coeff 5 5 lj/cut 0.0 0.0 0.0
+pair_coeff 1 1 lj/cut 0.0 0.0 0.0
+
+pair_modify shift yes
+
+pair_write 2 2 10000 r 0.01 0.21 table22.txt LJ
+pair_write 2 3 10000 r 0.01 0.21 table23.txt LJ
+pair_write 3 3 10000 r 0.01 0.21 table33.txt LJ
+pair_write 1 1 10000 r 0.01 0.10 table11.txt LJ  
+
+#neighbor        7.5 bin
+#comm_modify 	cutoff 10.0 
+#neigh_modify	every 1 check yes 
+
+
+print "pairs set"
+# ----------------------- C ATOM DEFINITION END ----------------------------
+
+
+# ------------------------- COMPUTES and OUTPUTS --------------------------------
+
+group laminAtoms type 1
+group chromatin1 type 2
+group chromatin2 type 3
+group outerShell type 5
+group chromatinAtoms union chromatin1 chromatin2
+group nucleusAtoms union laminAtoms chromatin1 chromatin2
+
+region lowerCap sphere 0. 0. -3. 1. units box
+group atomsToTrack region lowerCap
+
+# --- computes ---
+compute		lowerCapPos atomsToTrack reduce ave x y z
+
+compute		atomdisplacement all displace/atom 
+
+compute		localatomstress all stress/atom NULL
+
+compute tempNucleus nucleusAtoms temp
+compute tempLamin laminAtoms temp
+
+compute		truetempcom all temp/com 
+# temperature without center of mass motion
+
+compute		per_atom_be all pe/atom bond improper
+# computing per-atom bond & improper energy
+
+compute		total_be all reduce sum c_per_atom_be
+
+compute		cimp1 all property/local iatom1 iatom2 iatom3 iatom4 itype
+compute		cimp2 all improper/local chi chi
+
+compute		cbond1 all property/local batom1 batom2 btype 
+compute		cbond2 all bond/local dist engpot
+
+compute fmaxNucleus nucleusAtoms reduce max fx fy fz 
+
+# --- set thermo output ---
+
+thermo 		100
+thermo_style	custom step c_tempNucleus c_tempLamin  temp fmax c_fmaxNucleus[1] c_fmaxNucleus[2] c_fmaxNucleus[3] ke ndanger
+
+
+# --- dump rules ---
+
+
+dump		particle_dump all custom 50000  ${dumpDir}/particles*.dat	&
+			id mol type mass x y z vx vy vz fx fy fz c_per_atom_be &
+			c_atomdisplacement[1] c_atomdisplacement[2] c_atomdisplacement[3] &
+			c_localatomstress[1] c_localatomstress[2] c_localatomstress[3]	
+dump_modify	particle_dump sort id
+
+dump		bond_dump all local 50000 ${dumpDir}/bonds*.dat &
+			index c_cbond1[1] c_cbond1[2] c_cbond1[3] c_cbond2[1] c_cbond2[2]
+			
+dump		improper_dump all local 50000 ${dumpDir}/impropers*.dat &
+			index c_cimp1[1] c_cimp1[2] c_cimp1[3] c_cimp1[4] c_cimp1[5] c_cimp2[1]
+
+
+# ------------------------- MAIN RUNS --------------------------------
+
+timestep 1e-3
+fix thermostatting1 all nve/limit 0.0001
+#fix thermostatting1 nucleusAtoms nve/limit 0.001
+run 1000000
+unfix thermostatting1
+
+fix thermostatting all nve 
+#fix thermostatting nucleusAtoms nve 
+
+
+#fix dampOuter outerShell viscous 10. 
+#fix dampChromatin chromatinAtoms viscous 1. 
+
+timestep 1e-6
+variable currentT equal temp
+fix finiteT all langevin 300.0 300.0 0.0001 1234
+run 800000
+
+
+variable       timestep equal "step"
+compute        msdlamin laminAtoms msd com yes average yes
+variable       msdtotmin equal "c_msdlamin[4]"
+fix 	       prmsdmin laminAtoms print 100 "${timestep} ${msdtotmin}" file MSD_lamin.dat screen no
+
+run 200000
+
+
+write_restart ${dumpDir}/restart.*
+
+unfix thermostatting
+
+
+print		"Simulation Ended Correctly."
+# ----- END -----

@@ -1,0 +1,421 @@
+
+# ------------------- SIM INITIALIZATION --------------------------------------
+clear
+
+units 		micro		# lengths in microns, times in microseconds, masses in picograms
+dimension	3
+newton		on		# (required by lcbop)
+processors	2 2 2		# to arrange the processors in spatial grid x*y*z
+boundary 	s s m 		# 
+atom_style      hybrid molecular sphere
+atom_modify	sort 100000 2   # (required to use pair_style none) ## http://lammps.sandia.gov/doc/atom_style.html
+
+comm_modify cutoff 4.0 vel yes 
+
+read_data	${inputFile}
+###### read_restart    restart_100000.rst
+
+print "read input"
+
+# ------------------- SIM INITIALIZATION END ----------------------------------
+# -------------------- C ATOM DEFINITION ----------------------------------
+
+bond_style	harmonic
+include	${bondsFile}
+# bond lengths for all bond types
+
+bond_coeff 30722 ${chromatinShellBondCoeff} 0.1  # VA LASCIATO NELL INPUT
+######bond_coeff 30723 ${innerOuterBondCoeff} 6.16
+
+
+print "bonds loaded"
+
+improper_style	harmonic
+improper_coeff	1 ${nuclearImproper} 180.0 #1.75e-6 180.0
+improper_coeff	2 ${softImproper} 180.0 #1.75e-6 180.0
+
+
+# improper type; elastic constant (E/rad^2); equilibrium angle (deg)
+
+angle_style	harmonic
+angle_coeff     1 2e-1 130.0
+
+
+#epsilon (energy units)
+#sigma (distance units)
+#cutoff1 (distance units)
+#cutoff2 (distance units)
+#Note that sigma is defined in the LJ formula as the zero-crossing distance for the potential, not as the energy minimum at 2^(1/6) sigma.
+
+#The latter 2 coefficients are optional. If not specified, the global LJ and Coulombic cutoffs specified in the pair_style command are used. If only one cutoff is specified, it is used as the cutoff for both LJ and Coulombic interactions for this type pair. If both coefficients are specified, they are used as the LJ and Coulombic cutoffs for this type pair. You cannot specify 2 cutoffs for style lj/cut, since it has no Coulombic terms.
+
+
+pair_style hybrid lj/cut 0.6 
+pair_coeff 2 2 lj/cut ${chrLJ} 0.12 0.2  
+pair_coeff 2 3 lj/cut ${chrLJ} 0.12 0.2
+pair_coeff 3 3 lj/cut ${chrLJ} 0.12 0.2
+pair_coeff 1 2 lj/cut ${slinkYukawaA} 0.6 0.6
+pair_coeff 1 3 lj/cut ${slinkYukawaA} 0.6 0.6
+
+pair_coeff 1 1 lj/cut 0.0 0.0 0.0
+pair_coeff 1 4 lj/cut 0.0 0.0 0.0
+pair_coeff 2 4 lj/cut 0.0 0.0 0.0
+pair_coeff 3 4 lj/cut 0.0 0.0 0.0
+pair_coeff 4 4 lj/cut 0.0 0.0 0.0
+
+pair_modify shift yes
+
+print "pairs set"
+
+# ----------------------- C ATOM DEFINITION END ----------------------------
+ # HERE PASTE GROUPS AND FIX FREEZE
+  group           1 id       16131
+ group           1 id       16132
+ group           1 id       16133
+ group           1 id       16134
+ group           2 id       16135
+ group           2 id       16136
+ group           2 id       16137
+ group           2 id       16138
+ group           3 id       16139
+ group           3 id       16140
+ group           3 id       16141
+ group           3 id       16142
+ group           4 id       16143
+ group           4 id       16144
+ group           4 id       16145
+ group           4 id       16146
+ group           5 id       16147
+ group           5 id       16148
+ group           5 id       16149
+ group           5 id       16150
+ group           6 id       16151
+ group           6 id       16152
+ group           6 id       16153
+ group           6 id       16154
+ group           7 id       16155
+ group           7 id       16156
+ group           7 id       16157
+ group           7 id       16158
+ group           8 id       16159
+ group           8 id       16160
+ group           8 id       16161
+ group           8 id       16162
+ group           9 id       16163
+ group           9 id       16164
+ group           9 id       16165
+ group           9 id       16166
+ group          10 id       16167
+ group          10 id       16168
+ group          10 id       16169
+ group          10 id       16170
+ group          11 id       16171
+ group          11 id       16172
+ group          11 id       16173
+ group          11 id       16174
+ group          12 id       16175
+ group          12 id       16176
+ group          12 id       16177
+ group          12 id       16178
+ group          13 id       16179
+ group          13 id       16180
+ group          13 id       16181
+ group          13 id       16182
+ group          14 id       16183
+ group          14 id       16184
+ group          14 id       16185
+ group          14 id       16186
+ group          15 id       16187
+ group          15 id       16188
+ group          15 id       16189
+ group          15 id       16190
+ group          16 id       16191
+ group          16 id       16192
+ group          16 id       16193
+ group          16 id       16194
+ group          17 id       16195
+ group          17 id       16196
+ group          17 id       16197
+ group          17 id       16198
+ group          18 id       16199
+ group          18 id       16200
+ group          18 id       16201
+ group          18 id       16202
+ group          19 id       16203
+ group          19 id       16204
+ group          19 id       16205
+ group          19 id       16206
+ group          20 id       16207
+ group          20 id       16208
+ group          20 id       16209
+ group          20 id       16210
+ group          21 id       16211
+ group          21 id       16212
+ group          21 id       16213
+ group          21 id       16214
+ group          22 id       16215
+ group          22 id       16216
+ group          22 id       16217
+ group          22 id       16218
+ group          23 id       16219
+ group          23 id       16220
+ group          23 id       16221
+ group          23 id       16222
+ group          24 id       16223
+ group          24 id       16224
+ group          24 id       16225
+ group          24 id       16226
+ group          25 id       16227
+ group          25 id       16228
+ group          25 id       16229
+ group          25 id       16230
+  
+fix freeze1    1 setforce 0.0 0.0 0.0
+fix freeze2    2 setforce 0.0 0.0 0.0
+fix freeze3    3 setforce 0.0 0.0 0.0
+fix freeze4    4 setforce 0.0 0.0 0.0
+fix freeze5    5 setforce 0.0 0.0 0.0
+fix freeze6    6 setforce 0.0 0.0 0.0
+fix freeze7    7 setforce 0.0 0.0 0.0
+fix freeze8    8 setforce 0.0 0.0 0.0
+fix freeze9    9 setforce 0.0 0.0 0.0
+fix freeze10   10 setforce 0.0 0.0 0.0
+fix freeze11   11 setforce 0.0 0.0 0.0
+fix freeze12   12 setforce 0.0 0.0 0.0
+fix freeze13   13 setforce 0.0 0.0 0.0
+fix freeze14   14 setforce 0.0 0.0 0.0
+fix freeze15   15 setforce 0.0 0.0 0.0
+fix freeze16   16 setforce 0.0 0.0 0.0
+fix freeze17   17 setforce 0.0 0.0 0.0
+fix freeze18   18 setforce 0.0 0.0 0.0
+fix freeze19   19 setforce 0.0 0.0 0.0
+fix freeze20   20 setforce 0.0 0.0 0.0
+fix freeze21   21 setforce 0.0 0.0 0.0
+fix freeze22   22 setforce 0.0 0.0 0.0
+fix freeze23   23 setforce 0.0 0.0 0.0
+fix freeze24   24 setforce 0.0 0.0 0.0
+fix freeze25   25 setforce 0.0 0.0 0.0
+  
+
+  
+
+
+
+ 
+
+# ------------------------- COMPUTES and OUTPUTS --------------------------------
+
+group laminAtoms type 1
+group chromatin1 type 2
+group chromatin2 type 3
+group outerShell type 4
+group chromatinAtoms union chromatin1 chromatin2
+group nucleusAtoms union laminAtoms chromatin1 chromatin2
+
+#region lowerCap sphere 0. 0. -3. 1. units box
+#group atomsToTrack region lowerCap
+# --- computes ---
+#compute         lowerCapPos atomsToTrack reduce ave x y z
+
+compute         atomdisplacement all displace/atom 
+compute         localatomstress all stress/atom NULL
+compute         tempNucleus nucleusAtoms temp
+compute         tempLamin laminAtoms temp
+compute         truetempcom all temp/com 
+# temperature without center of mass motion
+compute         per_atom_be all pe/atom bond improper
+# computing per-atom bond & improper energy
+compute         total_be all reduce sum c_per_atom_be
+compute         cimp1 all property/local iatom1 iatom2 iatom3 iatom4 itype
+compute         cimp2 all improper/local chi chi
+compute         cbond1 all property/local batom1 batom2 btype 
+compute         cbond2 all bond/local dist engpot
+compute         fmaxNucleus nucleusAtoms reduce max fx fy fz 
+
+# --- set thermo output ---
+
+thermo 		100
+thermo_style    custom step c_tempNucleus c_tempLamin  temp fmax c_fmaxNucleus[1] c_fmaxNucleus[2] c_fmaxNucleus[3] ke 
+
+# --- dump rules ---
+
+
+dump		particle_dump all custom 50000  ${dumpDir}/particles*.dat	&
+			id mol type mass x y z vx vy vz fx fy fz c_per_atom_be &
+			c_atomdisplacement[1] c_atomdisplacement[2] c_atomdisplacement[3] &
+			c_localatomstress[1] c_localatomstress[2] c_localatomstress[3] c_atomdisplacement[4]  	
+dump_modify	particle_dump sort id
+dump		bond_dump all local 50000 ${dumpDir}/bonds*.dat &
+			index c_cbond1[1] c_cbond1[2] c_cbond1[3] c_cbond2[1] c_cbond2[2]
+			
+dump		improper_dump all local 50000 ${dumpDir}/impropers*.dat &
+			index c_cimp1[1] c_cimp1[2] c_cimp1[3] c_cimp1[4] c_cimp1[5] c_cimp2[1]
+
+
+
+# ------------------------- MAIN RUNS --------------------------------
+
+
+timestep 1e-3
+fix thermostatting1 all nve/limit 0.0001
+
+
+run 1000000
+#write_restart restart_100000.rst
+
+
+unfix thermostatting1
+
+
+
+# HERE PASTE UNFIX FREEZE
+unfix freeze1
+unfix freeze2
+unfix freeze3
+unfix freeze4
+unfix freeze5
+unfix freeze6
+unfix freeze7
+unfix freeze8
+unfix freeze9
+unfix freeze10
+unfix freeze11
+unfix freeze12
+unfix freeze13
+unfix freeze14
+unfix freeze15
+unfix freeze16
+unfix freeze17
+unfix freeze18
+unfix freeze19
+unfix freeze20
+unfix freeze21
+unfix freeze22
+unfix freeze23
+unfix freeze24
+unfix freeze25
+
+
+
+
+fix thermostatting all nve 
+
+
+
+
+
+
+
+
+
+# HERE PASTE FIX WIGGLE
+
+fix f1    1 move  wiggle   -0.67742  -0.55836   0.13921   0.18207 units box 
+fix f2    2 move  wiggle    0.07701  -0.79305   0.91125   0.20722 units box 
+fix f3    3 move  wiggle   -0.60244   0.90874  -0.10850   0.22869 units box 
+fix f4    4 move  wiggle   -0.17352  -0.18714   0.61309   0.19380 units box 
+fix f5    5 move  wiggle    0.25260   0.64551   0.70623   0.15271 units box 
+fix f6    6 move  wiggle   -0.18004  -0.37675   0.74291   0.10328 units box 
+fix f7    7 move  wiggle   -0.13933   0.05341   0.19785   0.13278 units box 
+fix f8    8 move  wiggle    0.20924   0.28311  -0.72426   0.09486 units box 
+fix f9    9 move  wiggle   -0.94327  -0.21389   0.23697   0.14010 units box 
+fix f10   10 move  wiggle    0.39414   0.73861  -0.58719   0.09222 units box 
+fix f11   11 move  wiggle   -0.97350   0.61475   0.50595   0.09575 units box 
+fix f12   12 move  wiggle    0.70781   0.08001   0.11179   0.20316 units box 
+fix f13   13 move  wiggle   -0.27057   0.41300   0.07800   0.07290 units box 
+fix f14   14 move  wiggle   -0.26020   0.04501   0.47863   0.19289 units box 
+fix f15   15 move  wiggle   -0.97468  -0.37465  -0.05101   0.16166 units box 
+fix f16   16 move  wiggle    0.18961  -0.47685   0.78893   0.07866 units box 
+fix f17   17 move  wiggle   -0.08565  -0.22141  -0.51384   0.16274 units box 
+fix f18   18 move  wiggle   -0.14690   0.08245   0.98396   0.09125 units box 
+fix f19   19 move  wiggle    0.64308  -0.11171  -0.37548   0.17494 units box 
+fix f20   20 move  wiggle    0.96497   0.17705   0.18938   0.10671 units box 
+fix f21   21 move  wiggle   -0.05449   0.24102   0.18499   0.11398 units box 
+fix f22   22 move  wiggle   -0.22725  -0.33585   0.95449   0.12704 units box 
+fix f23   23 move  wiggle   -0.15063  -0.60655   0.87293   0.07636 units box 
+fix f24   24 move  wiggle   -0.70055   0.20923  -0.54710   0.16182 units box 
+fix f25   25 move  wiggle   -0.27159  -0.00592  -0.36704   0.09234 units box
+  
+
+
+timestep 1e-6
+variable currentT equal temp
+
+fix finiteT all langevin 300.0 300.0 0.0001 1234
+
+
+
+run 8000000
+
+
+
+
+variable       timestep equal "step"
+# Measure MSD of the lamin atoms
+compute        msdlamin laminAtoms msd com yes 
+variable       msdtotmin equal "c_msdlamin[4]"
+fix 	       prmsdmin laminAtoms print 100 "${timestep} ${msdtotmin}" file MSD_lamin.dat screen no
+# Measure MSD of the outer
+compute        msdouter outerShell msd com yes
+variable       msdtotouter equal "c_msdouter[4]"
+fix 	       prouter outerShell print 100 "${timestep} ${msdtotouter}" file MSD_outer.dat screen no
+
+# Measure MSD of the lamin atoms average
+compute        avemsdlamin laminAtoms msd com yes average yes 
+variable       avemsdtotmin equal "c_avemsdlamin[4]"
+fix 	       aveprmsdmin laminAtoms print 100 "${timestep} ${avemsdtotmin}" file aveMSD_lamin.dat screen no
+
+
+
+# --- computes ---
+uncompute       atomdisplacement  
+uncompute       localatomstress 
+uncompute       truetempcom 
+uncompute       per_atom_be 
+uncompute       total_be 
+uncompute       cimp1  
+uncompute       cimp2  
+uncompute       cbond1   
+uncompute       cbond2  
+
+
+compute         atomdisplacement all displace/atom 
+compute         localatomstress all stress/atom NULL
+compute         truetempcom all temp/com 
+compute         per_atom_be all pe/atom bond improper # temperature without center of mass motion
+compute         total_be all reduce sum c_per_atom_be
+compute         cimp1 all property/local iatom1 iatom2 iatom3 iatom4 itype
+compute         cimp2 all improper/local chi chi
+compute         cbond1 all property/local batom1 batom2 btype 
+compute         cbond2 all bond/local dist engpot
+
+
+# --- dump rules ---
+
+undump          particle_dump
+undump          bond_dump
+undump          improper_dump
+
+dump		particle_dump all custom 500  ${dumpDir}/particles*.dat	&
+			id mol type mass x y z vx vy vz fx fy fz c_per_atom_be &
+			c_atomdisplacement[1] c_atomdisplacement[2] c_atomdisplacement[3] &
+			c_localatomstress[1] c_localatomstress[2] c_localatomstress[3] c_atomdisplacement[4]  	
+dump_modify	particle_dump sort id
+dump		bond_dump all local 500 ${dumpDir}/bonds*.dat &
+			index c_cbond1[1] c_cbond1[2] c_cbond1[3] c_cbond2[1] c_cbond2[2]
+			
+dump		improper_dump all local 500 ${dumpDir}/impropers*.dat &
+			index c_cimp1[1] c_cimp1[2] c_cimp1[3] c_cimp1[4] c_cimp1[5] c_cimp2[1]
+
+
+
+
+run 2000000
+
+#write_restart ${dumpDir}/restart.*
+
+unfix thermostatting
+
+
+print		"Simulation Ended Correctly."
+# ----- END -----
