@@ -4,10 +4,7 @@ This repository includes the necessary scripts and LAMMPS input files to reprodu
 MC Lionetti, S Bonfanti, MR Fumagalli, Z Budrikis, F Font-Clos, G Costantini, O Chepizhko, S Zapperi, CAM La Porta.
 "Chromatin and Cytoskeletal Tethering Determine Nuclear Morphology in Progerin-Expressing Cells".
 Biophysical Journal, Volume 118, Issue 9, 5 May 2020, Pages 2319-2332.
-<<<<<<< HEAD
-=======
 
->>>>>>> fc59d649dfd24eb4350188355e90d8269871f507
 https://doi.org/10.1016/j.bpj.2020.04.001
 [link to publication](https://www.sciencedirect.com/science/article/abs/pii/S0006349520303015)
 
@@ -37,8 +34,7 @@ Tethers values are defined both in the initial configuration files or in the Lam
 <<<<<<< HEAD
 The initial configurations consist in 2 files, 'input_*.lmp` containing the coordinates of the configuration with bonds, angles and impropers 
 =======
-The initial configurations consist in 2 files, input_*.lmp containing the coordinates of the configuration with bonds, angles and impropers 
->>>>>>> fc59d649dfd24eb4350188355e90d8269871f507
+The initial configurations consist in 2 files, input_*.lmp containing the coordinates of the configuration with bonds, angles and impropers
 and  the other one 'input_*_bondcoeff.lmp` containing the specification of bond coefficients between the nodes.
 Both files are loaded at the beginning of the Lammps script.
 
